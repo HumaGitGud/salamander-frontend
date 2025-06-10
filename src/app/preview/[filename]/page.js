@@ -21,7 +21,7 @@ export default function PreviewPage({ params }) {
   // make a POST request with a given link (targetColor and threshold are hardcoded rn)
   const handleStartProcess = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/process/${filename}?targetColor=255,0,0&threshold=50`, {
+      const res = await fetch(`http://localhost:3000/process/${filename}?targetColor=000000&threshold=75`, {
         method: 'POST',
       });
 

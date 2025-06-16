@@ -4,14 +4,10 @@
 
 import { useState, useEffect, useRef, use } from 'react';
 import { binarizeImage } from './processor.js';
+import { withJobStatus } from './withJobStatus.js';
 
-export default function PreviewPage({ params }) {
+function PreviewPage({ params, setJobId, status, resultFile, setStatus }) {
   const { filename } = use(params);
-
-  const [jobId, setJobId] = useState(null);
-  const [status, setStatus] = useState(null);
-  const [resultFile, setResultFile] = useState(null);
-
   const [color, setColor] = useState('#000000'); // default black
   const [threshold, setThreshold] = useState(75); // default 75
   const [binarizeSettings, setBinarizeSettings] = useState(null); // color/threshold, or null
@@ -110,30 +106,6 @@ export default function PreviewPage({ params }) {
     }
   };
 
-  // fetch and display job status using interval
-  useEffect(() => {
-    if (!jobId) return;
-
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch(`http://localhost:3000/process/${jobId}/status`);
-        if (!res.ok) throw new Error("Failed to fetch status");
-
-        const data = await res.json();
-        setStatus(data.status);
-        if (data.status === 'done') {
-          setResultFile(data.result);
-          clearInterval(interval);
-        }
-      } catch (err) {
-        console.error("Error fetching job status:", err);
-        clearInterval(interval);
-      }
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [jobId]);
-
   // UI elements
   return (
     <div>
@@ -199,3 +171,5 @@ export default function PreviewPage({ params }) {
     </div>
   );
 }
+
+export default withJobStatus(PreviewPage); // wrap the PreviewPage with the HOC

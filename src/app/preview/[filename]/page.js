@@ -83,9 +83,16 @@ export default function PreviewPage({ params }) {
 
   }, [binarizeSettings, filename]); // trigger whenever binarizeSettings or filename change
 
-  // when user clicks Preview button, update binarizeSettings to trigger drawing
-  const handlePreviewClick = () => {
+  // trigger binarizeSettings update when color or threshold changes
+  useEffect(() => {
     setBinarizeSettings({ color, threshold });
+  }, [color, threshold]);
+  
+  // handle color change only if new value is different
+  const handleColorChange = (e) => {
+    if (e.target.value !== color) {
+      setColor(e.target.value);
+    }
   };
 
   // make a POST request with a given link - start processing job using saved binarizeSettings
@@ -184,10 +191,6 @@ export default function PreviewPage({ params }) {
             />
           </label>
         </div>
-
-        <button onClick={handlePreviewClick}>
-          Preview
-        </button>
       </div>
 
       <button onClick={handleStartProcess}>

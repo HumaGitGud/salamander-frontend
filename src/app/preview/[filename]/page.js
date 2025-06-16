@@ -3,28 +3,93 @@
 'use client';
 
 import { useState, useEffect, useRef, use } from 'react';
-import Image from 'next/image';
+import { binarizeImage } from './processor.js';
 
 export default function PreviewPage({ params }) {
   const { filename } = use(params);
+
   const [jobId, setJobId] = useState(null);
   const [status, setStatus] = useState(null);
   const [resultFile, setResultFile] = useState(null);
 
   const [color, setColor] = useState('#000000'); // default black
   const [threshold, setThreshold] = useState(75); // default 75
-  const [binarizeSettings, setBinarizeSettings] = useState(null); // { color, threshold } or null
+  const [binarizeSettings, setBinarizeSettings] = useState(null); // color/threshold, or null
   const originalImgRef = useRef(null);
   const canvasRef = useRef(null);
 
-  // make a POST request with a given link
-  const handleStartProcess = async () => {
-    try {
-      const hex = color.replace('#', '').toUpperCase(); // remove # for backend
-      const res = await fetch(`http://localhost:3000/process/${filename}?targetColor=${hex}&threshold=${threshold}`,
-        { method: 'POST' }
+  // draw black canvas initially or when no binarizeSettings
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!originalImgRef.current) return;
+
+    canvas.width = originalImgRef.current.naturalWidth;
+    canvas.height = originalImgRef.current.naturalHeight;
+
+    if (!binarizeSettings) {
+      // clear canvas to black
+      ctx.fillStyle = 'black';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+
+    const img = originalImgRef.current;
+
+    if (!img.complete) {
+      img.onload = () => drawBinarized();
+    } else {
+      drawBinarized();
+    }
+
+    function drawBinarized() {
+      // draw original image offscreen to get pixel data
+      const offCanvas = document.createElement('canvas');
+      offCanvas.width = img.naturalWidth;
+      offCanvas.height = img.naturalHeight;
+      const offCtx = offCanvas.getContext('2d');
+      offCtx.drawImage(img, 0, 0);
+
+      const imageData = offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height);
+
+      const { binarizedImageData, centroid } = binarizeImage(
+        imageData,
+        binarizeSettings.color,
+        binarizeSettings.threshold
       );
 
+      ctx.putImageData(binarizedImageData, 0, 0);
+
+      if (centroid) {
+        ctx.beginPath();
+        ctx.arc(centroid.x, centroid.y, 6, 0, 2 * Math.PI);
+        ctx.fillStyle = 'red';
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.fill();
+        ctx.stroke();
+      }
+    }
+  }, [binarizeSettings, filename]);
+
+   // when user clicks Preview button, update binarizeSettings to trigger drawing
+  const handlePreviewClick = () => {
+    setBinarizeSettings({ color, threshold });
+  };
+
+  // make a POST request with a given link
+  const handleStartProcess = async () => {
+    if (!binarizeSettings) {
+      alert("Please preview the binarized image first before processing.");
+      return;
+    }
+    try {
+      const hex = binarizeSettings.color.replace('#', '').toUpperCase();
+      const res = await fetch(
+        `http://localhost:3000/process/${filename}?targetColor=${hex}&threshold=${binarizeSettings.threshold}`,
+        { method: 'POST' }
+      );
       if (!res.ok) throw new Error("Failed to start processing");
 
       const data = await res.json();
@@ -74,6 +139,7 @@ export default function PreviewPage({ params }) {
             src={`http://localhost:3000/thumbnail/${filename}`}
             alt={`Original ${filename}`}
             style={{ maxWidth: 300, maxHeight: 300 }}
+            crossOrigin="anonymous"
           />
         </div>
         
@@ -109,7 +175,7 @@ export default function PreviewPage({ params }) {
           </label>
         </div>
 
-        <button>
+        <button onClick={handlePreviewClick}>
           Preview
         </button>
       </div>

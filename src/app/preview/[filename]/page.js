@@ -87,13 +87,6 @@ export default function PreviewPage({ params }) {
   useEffect(() => {
     setBinarizeSettings({ color, threshold });
   }, [color, threshold]);
-  
-  // handle color change only if new value is different
-  const handleColorChange = (e) => {
-    if (e.target.value !== color) {
-      setColor(e.target.value);
-    }
-  };
 
   // make a POST request with a given link - start processing job using saved binarizeSettings
   const handleStartProcess = async () => {

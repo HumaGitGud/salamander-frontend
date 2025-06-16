@@ -18,33 +18,29 @@ export default function PreviewPage({ params }) {
   const originalImgRef = useRef(null);
   const canvasRef = useRef(null);
 
-  // draw black canvas initially or when no binarizeSettings
+  // set canvas size and draw the binarized image
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!originalImgRef.current) return;
-
-    canvas.width = originalImgRef.current.naturalWidth;
-    canvas.height = originalImgRef.current.naturalHeight;
-
-    if (!binarizeSettings) {
-      // clear canvas to black
-      ctx.fillStyle = 'black';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      return;
-    }
-
     const img = originalImgRef.current;
+    if (!canvas || !img) return;
 
-    if (!img.complete) {
-      img.onload = () => drawBinarized();
-    } else {
-      drawBinarized();
-    }
+    const ctx = canvas.getContext('2d');
 
-    function drawBinarized() {
-      // draw original image offscreen to get pixel data
+    // set the canvas size based on the image size
+    const setCanvasSize = () => {
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+    };
+
+    const drawBinarized = () => {
+      if (!binarizeSettings) {
+        // clear canvas and fill with black if no binarizeSettings
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        return;
+      }
+
+      // create offscreen canvas to get pixel data
       const offCanvas = document.createElement('canvas');
       offCanvas.width = img.naturalWidth;
       offCanvas.height = img.naturalHeight;
@@ -59,8 +55,10 @@ export default function PreviewPage({ params }) {
         binarizeSettings.threshold
       );
 
+      // put the binarized data on the canvas
       ctx.putImageData(binarizedImageData, 0, 0);
 
+      // draw the centroid if it exists
       if (centroid) {
         ctx.beginPath();
         ctx.arc(centroid.x, centroid.y, 6, 0, 2 * Math.PI);
@@ -70,15 +68,27 @@ export default function PreviewPage({ params }) {
         ctx.fill();
         ctx.stroke();
       }
-    }
-  }, [binarizeSettings, filename]);
+    };
 
-   // when user clicks Preview button, update binarizeSettings to trigger drawing
+    // set the canvas size and then draw the image
+    if (!img.complete) {
+      img.onload = () => {
+        setCanvasSize();
+        drawBinarized();
+      };
+    } else {
+      setCanvasSize();
+      drawBinarized();
+    }
+
+  }, [binarizeSettings, filename]); // trigger whenever binarizeSettings or filename change
+
+  // when user clicks Preview button, update binarizeSettings to trigger drawing
   const handlePreviewClick = () => {
     setBinarizeSettings({ color, threshold });
   };
 
-  // make a POST request with a given link
+  // make a POST request with a given link - start processing job using saved binarizeSettings
   const handleStartProcess = async () => {
     if (!binarizeSettings) {
       alert("Please preview the binarized image first before processing.");
@@ -132,7 +142,7 @@ export default function PreviewPage({ params }) {
 
       <div style={{ display: 'flex', gap: '2rem'}}>
         <div>
-          <h3>Original image</h3>
+          <h3>Original Image</h3>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             ref={originalImgRef}

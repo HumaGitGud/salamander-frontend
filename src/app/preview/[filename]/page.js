@@ -13,6 +13,8 @@ export default function PreviewPage({ params }) {
   const [jobId, setJobId] = useState(null);
   const [status, setStatus] = useState(null);
   const [resultFile, setResultFile] = useState(null);
+  const [color, setColor] = useState('#000000'); // default black
+  const [threshold, setThreshold] = useState(75); // default 75
 
   const thumbnailLoader = ({ src, width }) => {
     return `http://localhost:3000${src}?w=${width}`;
@@ -71,6 +73,28 @@ export default function PreviewPage({ params }) {
         width={240}
         height={240}
       />
+
+      <div>
+        <label> Target Color: 
+          <input
+            type="color"
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+          />
+        </label>
+      </div>
+
+      <div>
+        <label> Threshold: {threshold}
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={threshold}
+            onChange={(e) => setThreshold(parseInt(e.target.value))}
+          />
+        </label>
+      </div>
 
       <button onClick={handleStartProcess} style={{ display:'block'}}>
         Start Process

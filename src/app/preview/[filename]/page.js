@@ -20,12 +20,13 @@ export default function PreviewPage({ params }) {
     return `http://localhost:3000${src}?w=${width}`;
   };
 
-  // make a POST request with a given link (targetColor and threshold are hardcoded rn)
+  // make a POST request with a given link
   const handleStartProcess = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/process/${filename}?targetColor=000000&threshold=75`, {
-        method: 'POST',
-      });
+      const hex = color.replace('#', '').toUpperCase(); // remove # for backend
+      const res = await fetch(`http://localhost:3000/process/${filename}?targetColor=${hex}&threshold=${threshold}`,
+        { method: 'POST' }
+      );
 
       if (!res.ok) throw new Error("Failed to start processing");
 

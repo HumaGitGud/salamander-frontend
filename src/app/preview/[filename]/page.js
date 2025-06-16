@@ -1,24 +1,21 @@
 // Preview page (display video information when clicked from videos list)
-// Still need to implement color picker and threshold to pass correct URL to fetch req
-// Still need to do proper tests
 
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, useRef, use } from 'react';
 import Image from 'next/image';
 
 export default function PreviewPage({ params }) {
   const { filename } = use(params);
-
   const [jobId, setJobId] = useState(null);
   const [status, setStatus] = useState(null);
   const [resultFile, setResultFile] = useState(null);
+
   const [color, setColor] = useState('#000000'); // default black
   const [threshold, setThreshold] = useState(75); // default 75
-
-  const thumbnailLoader = ({ src, width }) => {
-    return `http://localhost:3000${src}?w=${width}`;
-  };
+  const [binarizeSettings, setBinarizeSettings] = useState(null); // { color, threshold } or null
+  const originalImgRef = useRef(null);
+  const canvasRef = useRef(null);
 
   // make a POST request with a given link
   const handleStartProcess = async () => {
@@ -68,37 +65,57 @@ export default function PreviewPage({ params }) {
       <h1>Preview Page</h1>
       <p>Now previewing: <strong>{filename}</strong></p>
 
-      <Image loader={thumbnailLoader}
-        src={`/thumbnail/${filename}`}
-        alt={`Thumbnail for ${filename}`}
-        width={240}
-        height={240}
-      />
-
-      <div>
-        <label> Target Color: 
-          <input
-            type="color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
+      <div style={{ display: 'flex', gap: '2rem'}}>
+        <div>
+          <h3>Original image</h3>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            ref={originalImgRef}
+            src={`http://localhost:3000/thumbnail/${filename}`}
+            alt={`Original ${filename}`}
+            style={{ maxWidth: 300, maxHeight: 300 }}
           />
-        </label>
+        </div>
+        
+        <div>
+          <h3>Binarized Image</h3>
+          <canvas
+            ref={canvasRef}
+            style={{ border: '1px solid black', maxWidth: 300, maxHeight: 300 }}
+          />
+        </div>
       </div>
 
-      <div>
-        <label> Threshold: {threshold}
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={threshold}
-            onChange={(e) => setThreshold(parseInt(e.target.value))}
-          />
-        </label>
+      <div style={{ display: 'flex', gap: '2rem' }}>
+        <div>
+          <label> Target Color: 
+            <input
+              type="color"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+            />
+          </label>
+        </div>
+
+        <div>
+          <label> Threshold: {threshold}
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={threshold}
+              onChange={(e) => setThreshold(parseInt(e.target.value))}
+            />
+          </label>
+        </div>
+
+        <button>
+          Preview
+        </button>
       </div>
 
-      <button onClick={handleStartProcess} style={{ display:'block'}}>
-        Start Process
+      <button onClick={handleStartProcess}>
+        Process Video with These Settings
       </button>
 
       {status && <p>Status: <strong>{status}</strong></p>}
@@ -109,5 +126,4 @@ export default function PreviewPage({ params }) {
 
     </div>
   );
-
 }

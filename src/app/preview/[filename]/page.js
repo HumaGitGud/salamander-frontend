@@ -173,6 +173,7 @@ function PreviewPage({ params, setJobId, status, resultFile, setStatus }) {
             min={0}
             max={100}
             valueLabelDisplay="off"
+            color="success"
             sx={{ flexGrow: 1 }}
           />
         </Box>
@@ -181,7 +182,7 @@ function PreviewPage({ params, setJobId, status, resultFile, setStatus }) {
 
       {/* centered button */}
       <Box textAlign="center" mb={2}>
-        <Button variant="contained" onClick={handleStartProcess}>
+        <Button variant="contained" onClick={handleStartProcess} color="success">
           Process Video with These Settings
         </Button>
       </Box>

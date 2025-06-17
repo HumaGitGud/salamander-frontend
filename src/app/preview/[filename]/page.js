@@ -7,6 +7,7 @@ import { binarizeImage } from './processor.js';
 import { withJobStatus } from './withJobStatus.js';
 
 import { Box, Typography, Slider, Button, Stack, InputLabel } from '@mui/material';
+import { CircularProgress } from '@mui/material';
 
 function PreviewPage({ params, setJobId, status, resultFile, setStatus }) {
   const { filename } = use(params);
@@ -185,12 +186,21 @@ function PreviewPage({ params, setJobId, status, resultFile, setStatus }) {
         </Button>
       </Box>
 
-      {/* status */}
-      {status && (
-        <Typography mb={1} textAlign="center">
-          Status: <strong>{status}</strong>
-        </Typography>
-      )}
+      {/* status display */}
+      <Box textAlign="center" mt={2}>
+        {status === 'processing' && (
+          <Stack alignItems="center" spacing={1}>
+            <CircularProgress />
+            <Typography>Processing video...</Typography>
+          </Stack>
+        )}
+
+        {status && status !== 'processing' && (
+          <Typography>
+            Status: <strong>{status}</strong>
+          </Typography>
+        )}
+      </Box>
 
       {/* download link */}
       {status === 'done' && resultFile && (

@@ -7,70 +7,81 @@ import { Box, Typography, Container } from '@mui/material';
 
 // lizards floating animation
 export default function Home() {
+  // create a reference for the canvas element
   const canvasRef = useRef(null);
 
   useEffect(() => {
+    // access the canvas and its context for drawing
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
 
+    // resize function to adjust canvas size based on window size
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;  // set canvas width to window width
+      canvas.height = window.innerHeight;  // set canvas height to window height
     };
-    resize();
-    window.addEventListener('resize', resize);
+    resize();  // call resize to set the initial canvas size
+    window.addEventListener('resize', resize);  // update canvas size when the window is resized
 
+    // create an array of emojis (lizards) with random positions, sizes, and movement directions
     const emojis = Array.from({ length: 60 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      dx: (Math.random() - 0.5) * 0.5,
-      dy: (Math.random() - 0.5) * 0.5,
-      size: 20 + Math.random() * 20,
+      x: Math.random() * canvas.width, // random x position
+      y: Math.random() * canvas.height, // random y position
+      dx: (Math.random() - 0.5) * 0.5, // random horizontal speed
+      dy: (Math.random() - 0.5) * 0.5, // random vertical speed
+      size: 20 + Math.random() * 20, // random size between 20 and 40
       symbol: '🐊',
     }));
 
-    let animationFrameId;
+    let animationFrameId; // variable to store the animation frame ID for cancelling later
+
+    // function to animate the emojis on the canvas
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);  // clear the canvas before each frame
       emojis.forEach(e => {
-        e.x += e.dx;
-        e.y += e.dy;
+        e.x += e.dx;  // update x position
+        e.y += e.dy;  // update y position
+        // bounce off the edges by reversing the speed when hitting a wall
         if (e.x < 0 || e.x > canvas.width) e.dx *= -1;
         if (e.y < 0 || e.y > canvas.height) e.dy *= -1;
+        // draw each emoji at its new position
         ctx.font = `${e.size}px serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(e.symbol, e.x, e.y);
+        ctx.fillText(e.symbol, e.x, e.y); // draw the emoji at (x, y)
       });
+      // request the next animation frame for smooth animation
       animationFrameId = requestAnimationFrame(animate);
     };
-    animate();
+    animate();  // start the animation loop
 
+    // clean up when the component is unmounted
     return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationFrameId); // cancel the animation
+      window.removeEventListener('resize', resize); // remove the resize event listener
     };
-  }, []);
+  }, []);  // empty dependency array means this effect runs only once after the initial render
 
   return (
     <>
+    {/* the canvas with floating emojis */}
     <Box
       component="canvas"
-      ref={canvasRef}
+      ref={canvasRef}  // assign the canvas reference
       sx={{
-        position: 'fixed',
+        position: 'fixed',  // position it as fixed background
         top: 0,
         left: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: -1
+        width: '100%',  // fill the entire screen width
+        height: '100%',  // fill the entire screen height
+        zIndex: -1  // place the canvas behind other elements
       }}
     />
 
     <Container>
       <Box 
         component="video" 
-        src="/salamander.mp4" 
+        src="/salamander.mp4"
         autoPlay 
         muted
         loop 

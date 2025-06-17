@@ -3,40 +3,43 @@
 import Link from 'next/link';
 import { ThemeProvider, createTheme, CssBaseline, Container, Box, Typography, Link as MuiLink } from '@mui/material';
 
+// custom theme using MUI's createTheme function
 const theme = createTheme({
   typography: {
-    h1: { fontWeight: 'bold', fontSize: '2rem' },
-    h2: { fontWeight: 600, fontSize: '1.5rem' },
-    body1: { fontSize: '1rem', lineHeight: 1.6 },
+    h1: { fontWeight: 'bold', fontSize: '2rem' },  // style for h1 elements
+    h2: { fontWeight: 600, fontSize: '1.5rem' },  // style for h2 elements
+    body1: { fontSize: '1rem', lineHeight: 1.6 },  // style for body text
   },
   palette: {
-    primary: { main: '#6200ea' },
-    secondary: { main: '#03dac6' },
-    background: { default: '#f5f5f5' },
-    text: { primary: '#333', secondary: '#555' },
+    primary: { main: '#6200ea' },  // primary color (purple)
+    secondary: { main: '#03dac6' },  // secondary color (teal)
+    background: { default: '#f5f5f5' },  // background color (light gray)
+    text: { primary: '#333', secondary: '#555' },  // primary and secondary text colors
   },
   components: {
+    // styling overrides for Material-UI components
     MuiLink: {
       styleOverrides: {
         root: {
-          fontWeight: 'bold',
-          textDecoration: 'none',
-          transition: 'color 0.3s ease',
-          '&:hover': { color: '#1976d2' },
+          fontWeight: 'bold',  // bold font for links
+          textDecoration: 'none',  // remove underline from links
+          transition: 'color 0.3s ease',  // smooth color transition on hover
+          '&:hover': { color: '#1976d2' },  // change color on hover
         },
       },
     },
     MuiContainer: {
       styleOverrides: {
         root: {
-          padding: '2rem',
-          maxWidth: '1200px',
+          padding: '2rem',  // padding inside the container
+          maxWidth: '1200px',  // maximum container width
         },
       },
     },
   },
 });
 
+// the root layout component, wraps all children content
 export default function RootLayout({ children }) {
   return (
     <html lang="en">

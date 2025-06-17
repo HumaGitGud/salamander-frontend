@@ -22,7 +22,7 @@ const theme = createTheme({
           fontWeight: 'bold',
           textDecoration: 'none',
           transition: 'color 0.3s ease',
-          '&:hover': { color: 'red' },
+          '&:hover': { color: '#1976d2' },
         },
       },
     },

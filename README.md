@@ -1,6 +1,7 @@
 # Salamander Frontend
 
 A Next.js application for processing and analyzing video content, specifically designed for tracking salamander movements.
+Slides: https://docs.google.com/presentation/d/18HyPZrTLjIWKlpEwyTjyAyKp1GxyvM-kpJRVWsPVF1o/edit?slide=id.gcb9a0b074_1_103#slide=id.gcb9a0b074_1_103
 
 ## Project Overview
 

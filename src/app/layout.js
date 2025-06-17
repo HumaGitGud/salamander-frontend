@@ -24,7 +24,7 @@ const theme = createTheme({
           fontWeight: 'bold',  // bold font for links
           textDecoration: 'none',  // remove underline from links
           transition: 'color 0.3s ease',  // smooth color transition on hover
-          '&:hover': { color: '#1976d2' },  // change color on hover
+          '&:hover': { color: '#81c784' },  // change color on hover
         },
       },
     },

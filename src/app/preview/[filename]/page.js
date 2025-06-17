@@ -6,6 +6,8 @@ import { useState, useEffect, useRef, use } from 'react';
 import { binarizeImage } from './processor.js';
 import { withJobStatus } from './withJobStatus.js';
 
+import { Box, Typography, Slider, Button, Stack, InputLabel } from '@mui/material';
+
 function PreviewPage({ params, setJobId, status, resultFile, setStatus }) {
   const { filename } = use(params);
   const [color, setColor] = useState('#000000'); // default black
@@ -108,67 +110,95 @@ function PreviewPage({ params, setJobId, status, resultFile, setStatus }) {
 
   // UI elements
   return (
-    <div>
-      <h1>Preview Page</h1>
-      <p>Now previewing: <strong>{filename}</strong></p>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Preview Page
+      </Typography>
 
-      <div style={{ display: 'flex', gap: '2rem'}}>
-        <div>
-          <h3>Original Image</h3>
+      <Typography mb={4}>
+        Now previewing: <strong>{filename}</strong>
+      </Typography>
+
+      {/* centered images */}
+      <Stack direction="row" justifyContent="center" spacing={4} mb={3}>
+        <Box>
+          <Typography variant="h6" mb={1} textAlign="center">
+            Original Thumbnail
+          </Typography>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             ref={originalImgRef}
             src={`http://localhost:3000/thumbnail/${filename}`}
             alt={`Original ${filename}`}
-            style={{ maxWidth: 300, maxHeight: 300 }}
+            style={{ maxWidth: 440, maxHeight: 440, display: 'block' }}
             crossOrigin="anonymous"
           />
-        </div>
-        
-        <div>
-          <h3>Binarized Image</h3>
+        </Box>
+
+        <Box>
+          <Typography variant="h6" mb={1} textAlign="center">
+            Binarized Thumbnail
+          </Typography>
           <canvas
             ref={canvasRef}
-            style={{ border: '1px solid black', maxWidth: 300, maxHeight: 300 }}
+            style={{ border: '1px solid black', maxWidth: 440, maxHeight: 440, display: 'block' }}
           />
-        </div>
-      </div>
+        </Box>
+      </Stack>
 
-      <div style={{ display: 'flex', gap: '2rem' }}>
-        <div>
-          <label> Target Color: 
-            <input
-              type="color"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
-            />
-          </label>
-        </div>
+      {/* centered controls */}
+      <Stack direction="row" spacing={6} justifyContent="center" alignItems="center" mb={3}>
+        {/* color picker */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Typography sx={{ fontWeight: 500, whiteSpace: 'nowrap' }}>
+            Target Color
+          </Typography>
+          <input
+            type="color"
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+            style={{ cursor: 'pointer' }}
+          />
+        </Box>
 
-        <div>
-          <label> Threshold: {threshold}
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={threshold}
-              onChange={(e) => setThreshold(parseInt(e.target.value))}
-            />
-          </label>
-        </div>
-      </div>
+        {/* threshold slider */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 400 }}>
+          <Typography sx={{ fontWeight: 500, whiteSpace: 'nowrap' }}>
+            Threshold: {threshold}
+          </Typography>
+          <Slider
+            value={threshold}
+            onChange={(e, val) => setThreshold(val)}
+            min={0}
+            max={100}
+            valueLabelDisplay="off"
+            sx={{ flexGrow: 1 }}
+          />
+        </Box>
+      </Stack>
 
-      <button onClick={handleStartProcess}>
-        Process Video with These Settings
-      </button>
 
-      {status && <p>Status: <strong>{status}</strong></p>}
+      {/* centered button */}
+      <Box textAlign="center" mb={2}>
+        <Button variant="contained" onClick={handleStartProcess}>
+          Process Video with These Settings
+        </Button>
+      </Box>
 
-      {status === 'done' && resultFile && (
-        <a href={`http://localhost:3000/results/${resultFile}`}> Download CSV result </a>
+      {/* status */}
+      {status && (
+        <Typography mb={1} textAlign="center">
+          Status: <strong>{status}</strong>
+        </Typography>
       )}
 
-    </div>
+      {/* download link */}
+      {status === 'done' && resultFile && (
+        <Typography textAlign="center">
+          <a href={`http://localhost:3000/results/${resultFile}`}>Download CSV result</a>
+        </Typography>
+      )}
+    </Box>
   );
 }
 

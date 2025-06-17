@@ -40,6 +40,12 @@ const theme = createTheme({
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <title>Salamander Tracker</title>
+        <meta name="description" content="Track salamanders with computer vision." />
+        <link rel="icon" href="/favicon.png" />
+      </head>
+
       <body>
         <ThemeProvider theme={theme}>
           <CssBaseline />
